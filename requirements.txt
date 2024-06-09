@@ -1,17 +1,25 @@
-black
-flake8
-ipython
-isort
-jupyterlab
+# Production
 loguru
 matplotlib
-mkdocs
-notebook
 numpy
+opencv
 pandas
-pip
 python-dotenv
 scikit-learn
+scikit-image
 tqdm
 typer
+
+# Development
+black
+flake8
+isort
+mkdocs
+
+# Development notebook (optional)
+jupyterlab
+notebook
+ipython
+
+# Local package
 -e .
