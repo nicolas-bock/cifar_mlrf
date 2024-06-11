@@ -9,10 +9,13 @@ from MLRF.config import PROCESSED_DATA_DIR, RAW_DATA_DIR
 
 app = typer.Typer()
 
-def unpickle(file):
-    with open(file, 'rb') as fo:
-        dict = pickle.load(fo, encoding='bytes')
-    return dict
+def load_data(file_path, encoding=None):
+    with open(file_path, 'rb') as f:
+        if (encoding is not None):
+            data = pickle.load(f, encoding=encoding)
+        else:
+            data = pickle.load(f)
+    return data
 
 @app.command()
 def main(
@@ -25,7 +28,7 @@ def main(
     logger.info("Processing dataset...")
 
     # Charger les 10 labels/features depuis batches.meta
-    meta_dict = unpickle(input_path / "batches.meta")
+    meta_dict = load_data(input_path / "batches.meta", encoding='bytes')
     label_names = meta_dict[b'label_names']
     logger.info(f"Labels/Features: {label_names}")
     
@@ -39,15 +42,15 @@ def main(
     }
 
     for i in range(5):
-        batch_dict = unpickle(input_path / f"data_batch_{i+1}")
+        batch_dict = load_data(input_path / f"data_batch_{i+1}", encoding='bytes')
         combined_dict[b'data'].extend(batch_dict[b'data'])
         combined_dict[b'labels'].extend(batch_dict[b'labels'])
         
-    for j in tqdm(range(0, 50000), ncols=100, desc="Processing dataset"):
+    for _ in tqdm(range(0, 50000), ncols=100, desc="Processing dataset"):
         continue
 
     # Charger les données de test depuis test_batch
-    test_batch_dict = unpickle(input_path / "test_batch")
+    test_batch_dict = load_data(input_path / "test_batch", encoding='bytes')
     combined_dict[b'test_data'].extend(test_batch_dict[b'data'])
     combined_dict[b'test_labels'].extend(test_batch_dict[b'labels'])
 

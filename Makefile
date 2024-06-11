@@ -57,17 +57,17 @@ create_environment:
 
 ## Make Dataset
 .PHONY: data
-data: requirements
+data:
 	$(PYTHON_INTERPRETER) MLRF/dataset.py
 
 ## Train Model
 .PHONY: train
-train: requirements
+train:
 	$(PYTHON_INTERPRETER) MLRF/modeling/train.py
 
 ## Predict Model
 .PHONY: predict
-predict: requirements
+predict:
 	$(PYTHON_INTERPRETER) MLRF/modeling/predict.py
 
 
