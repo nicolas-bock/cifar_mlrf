@@ -2,7 +2,7 @@
 loguru
 matplotlib
 numpy
-opencv
+# opencv
 pandas
 python-dotenv
 scikit-learn

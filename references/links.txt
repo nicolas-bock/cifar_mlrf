@@ -1,0 +1,3 @@
+Cifar Database : https://www.cs.toronto.edu/~kriz/cifar.html
+
+Project Structure (Cookiecutter Data Science) : https://cookiecutter-data-science.drivendata.org

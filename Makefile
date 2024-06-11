@@ -4,7 +4,7 @@
 
 PROJECT_NAME = cifar_mlrf
 PYTHON_VERSION = 3.12
-PYTHON_INTERPRETER = python
+PYTHON_INTERPRETER = python3
 
 #################################################################################
 # COMMANDS                                                                      #
@@ -58,7 +58,17 @@ create_environment:
 ## Make Dataset
 .PHONY: data
 data: requirements
-	$(PYTHON_INTERPRETER) MLRF/data/make_dataset.py
+	$(PYTHON_INTERPRETER) MLRF/dataset.py
+
+## Train Model
+.PHONY: train
+train: requirements
+	$(PYTHON_INTERPRETER) MLRF/modeling/train.py
+
+## Predict Model
+.PHONY: predict
+predict: requirements
+	$(PYTHON_INTERPRETER) MLRF/modeling/predict.py
 
 
 #################################################################################
