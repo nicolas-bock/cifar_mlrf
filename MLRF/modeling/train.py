@@ -4,6 +4,9 @@ import typer
 from loguru import logger
 from tqdm import tqdm
 
+from sklearn.pipeline import make_pipeline
+from sklearn.preprocessing import StandardScaler
+
 from MLRF.dataset import load_data
 import MLRF.model_utils as md
 from MLRF.config import MODELS_DIR, PROCESSED_DATA_DIR
@@ -27,17 +30,12 @@ def main(
     # Train the models
     for name, model in md.models.items():
         logger.info(f"Training {name} model...")
+        # pipe = make_pipeline(StandardScaler(), model)
+        # pipe.fit(X_train, y_train)
         model.fit(X_train, y_train)
         logger.success(f"{name} model trained.")
         md.save_model(model, f"{name}_model.pkl", model_path)
         logger.success(f"{name} model saved.")
-
-    # ---- Example of tqdm uses ----
-    # logger.info("Training some model...")
-    # for i in tqdm(range(10), total=10):
-    #     if i == 5:
-    #         logger.info("Something happened for iteration 5.")
-    # logger.success("Modeling training complete.")
     # -----------------------------------------
 
 

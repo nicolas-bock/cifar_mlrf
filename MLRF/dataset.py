@@ -19,12 +19,12 @@ def load_data(file_path, encoding=None):
 
 @app.command()
 def main(
-    # ---- REPLACE DEFAULT PATHS AS APPROPRIATE ----
+    # ---- DEFAULT PATHS ----
     input_path: Path = RAW_DATA_DIR / "cifar-10-batches-py",
     output_path: Path = PROCESSED_DATA_DIR / "processed_dataset.pkl",
     # ----------------------------------------------
 ):
-    # ---- REPLACE THIS WITH YOUR OWN CODE ----
+
     logger.info("Processing dataset...")
 
     # Charger les 10 labels/features depuis batches.meta

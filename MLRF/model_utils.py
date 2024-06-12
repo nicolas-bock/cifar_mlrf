@@ -5,15 +5,17 @@ from sklearn.ensemble import RandomForestClassifier, GradientBoostingClassifier
 from sklearn.linear_model import LogisticRegression
 from sklearn.neighbors import KNeighborsClassifier
 from sklearn.svm import SVC
-from sklearn.metrics import accuracy_score
+from sklearn.metrics import accuracy_score, confusion_matrix, precision_recall_curve, roc_curve, auc
 from sklearn.model_selection import cross_val_score
+from sklearn.preprocessing import label_binarize
+
 
 models = {
     'random_forest': RandomForestClassifier(n_estimators=100, random_state=42),
-    'svm': SVC(kernel='rbf', random_state=42),
+    'svm': SVC(max_iter=100 , kernel='rbf', random_state=42),
     'logistic_regression': LogisticRegression(random_state=42),
     'knn': KNeighborsClassifier(),
-    'gradient_boosting': GradientBoostingClassifier(random_state=42)
+    # 'gradient_boosting': GradientBoostingClassifier(n_estimators=100, learning_rate=0.01, random_state=42)
 }
 
 def save_model(model, model_name, model_dir='models'):

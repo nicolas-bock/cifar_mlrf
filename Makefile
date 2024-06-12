@@ -70,6 +70,15 @@ train:
 predict:
 	$(PYTHON_INTERPRETER) MLRF/modeling/predict.py
 
+## Plots
+.PHONY: plots
+plots:
+	$(PYTHON_INTERPRETER) MLRF/plots.py
+
+## Run the entire pipeline
+.PHONY: run
+run: requirements data train predict
+
 
 #################################################################################
 # Self Documenting Commands                                                     #
