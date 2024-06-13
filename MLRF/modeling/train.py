@@ -4,9 +4,6 @@ import typer
 from loguru import logger
 from tqdm import tqdm
 
-from sklearn.pipeline import make_pipeline
-from sklearn.preprocessing import StandardScaler
-
 from MLRF.dataset import load_data
 import MLRF.model_utils as md
 from MLRF.config import MODELS_DIR, PROCESSED_DATA_DIR
@@ -24,16 +21,22 @@ def main(
     data = load_data(data_path)
 
     X_train = np.array(data[b'data']).reshape(-1, 32, 32, 3) / 255.0
+    # HOG features -> if pipeline, then remove this line
+    # X_train = np.array(data[b'hog_data'])
     y_train = np.array(data[b'labels'])
     X_train = X_train.reshape(X_train.shape[0], -1)
+
+    # TODO: Missing Validation data to evaluate the models
 
     # Train the models
     for name, model in md.models.items():
         logger.info(f"Training {name} model...")
-        # pipe = make_pipeline(StandardScaler(), model)
-        # pipe.fit(X_train, y_train)
+        # md.pipeline.set_params(classifier=model)
+        # md.pipeline.fit(X_train, y_train)
         model.fit(X_train, y_train)
         logger.success(f"{name} model trained.")
+        # y_pred = md.pipeline.predict(X_validation)
+        # accuracy = md.accuracy_score(y_validation, y_pred)
         md.save_model(model, f"{name}_model.pkl", model_path)
         logger.success(f"{name} model saved.")
     # -----------------------------------------

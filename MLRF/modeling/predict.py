@@ -34,6 +34,7 @@ def main(
         logger.info(f"Evaluating {name} model...")
         predictions[name] = model.predict(X_test)
         accuracy = md.accuracy_score(y_test, predictions[name])
+        # accuracy = md.pipeline.score(X_test, y_test)
         logger.success(f"{name} model accuracy: {accuracy:.2f}")
         scores = md.cross_val_score(model, X_test, y_test, cv=5)
         logger.success(f"{name} model cross-validation accuracy: {scores.mean():.2f}")
