@@ -11,7 +11,6 @@ from tqdm import tqdm
 from sklearn.pipeline import make_pipeline
 from sklearn.preprocessing import StandardScaler
 from sklearn.inspection import DecisionBoundaryDisplay
-from sklearn.model_selection import train_test_split
 from matplotlib.colors import ListedColormap
 
 from MLRF.dataset import load_data
@@ -34,6 +33,14 @@ def main(
     predictions_df = pd.read_csv(predictions_path)
     data = load_data(data_path)
     label_names = [label.decode('utf-8') for label in data[b'label_names']]
+
+    train_data = load_data(PROCESSED_DATA_DIR / "train_data.pkl")
+    test_data = load_data(PROCESSED_DATA_DIR / "test_data.pkl")
+
+    X_train = np.array(train_data[b'data'])
+    y_train = np.array(train_data[b'labels'])
+    X_test = np.array(test_data[b'data'])
+    y_test = np.array(test_data[b'labels'])
     
     logger.info(f"Plotting evaluation metrics...")
     # Correlation des prédictions
@@ -44,7 +51,6 @@ def main(
     plt.savefig(figures_path / 'predictions_correlation_matrix.png')
     plt.close()
 
-    y_test = np.array(data[b'test_labels'])
     n_classes = len(label_names)
     y_test_bin = md.label_binarize(y_test, classes=np.arange(n_classes))
 
@@ -93,19 +99,9 @@ def main(
         plt.close()
 
     # -----------------------------------------
-    # Comparaison des classifieurs
-    X_train = np.array(data[b'data']).reshape(-1, 32, 32, 3) / 255.0
-    y_train = np.array(data[b'labels'])
-    X_test = np.array(data[b'test_data']).reshape(-1, 32, 32, 3) / 255.0
-    y_test = np.array(data[b'test_labels'])
-
-    # Flattening the image data for classifiers
-    X_train = X_train.reshape(X_train.shape[0], -1)
-    X_test = X_test.reshape(X_test.shape[0], -1)
-
     figure = plt.figure(figsize=(27, 9))
     i = 1
-   
+
     x_min, x_max = X_train[:, 0].min() - 0.5, X_train[:, 0].max() + 0.5
     y_min, y_max = X_train[:, 1].min() - 0.5, X_train[:, 1].max() + 0.5
 

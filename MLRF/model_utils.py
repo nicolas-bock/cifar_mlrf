@@ -13,21 +13,22 @@ from sklearn.pipeline import make_pipeline, Pipeline
 from sklearn.preprocessing import StandardScaler, FunctionTransformer
 from sklearn.decomposition import PCA
 
-from MLRF.dataset import extract_hog_features
+from MLRF.features import extract_hog_features, rgb2gray
 
 models = {
-    'random_forest': RandomForestClassifier(n_estimators=100, random_state=42), # criterion, max_depth
+    'random_forest': RandomForestClassifier(random_state=42, criterion='entropy', max_depth=10), # criterion, max_depth
     'svm': SVC(max_iter=100 , kernel='rbf', random_state=42), # degree, gamma
     'logistic_regression': LogisticRegression(random_state=42), # penalty, solver
     'knn': KNeighborsClassifier(), # n_neighbors, algorithm
-    # 'gradient_boosting': GradientBoostingClassifier(n_estimators=100, learning_rate=0.01, random_state=42) # loss, max_depth, criterion
+    # 'gradient_boosting': GradientBoostingClassifier(learning_rate=0.01, random_state=42) # loss, max_depth, criterion
 }
 
 # -> Ajouter hog dans la pipeline => retirer hog du process de data
 pipeline = Pipeline([
+    # ('greyscale', FunctionTransformer(rgb2gray, validate=False)),
     ('hog_extraction', FunctionTransformer(extract_hog_features, validate=False)),
-    ('scaler', StandardScaler()),
-    ('pca', PCA(n_components=100)),  # Réduction de dimensionnalité avec PCA
+    # ('scaler', StandardScaler()),
+    # ('pca', PCA(n_components=100)),  # Réduction de dimensionnalité avec PCA
     ('classifier', None)
 ])
 

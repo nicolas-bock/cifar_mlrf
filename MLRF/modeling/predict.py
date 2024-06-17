@@ -5,9 +5,10 @@ from loguru import logger
 from tqdm import tqdm
 import pandas as pd
 
-from MLRF.dataset import load_data
+from MLRF.dataset import load_data, save_data
 import MLRF.model_utils as md
 from MLRF.config import MODELS_DIR, PROCESSED_DATA_DIR
+from MLRF.features import to_image
 
 app = typer.Typer()
 
@@ -23,8 +24,17 @@ def main(
     data = load_data(features_path)
 
     X_test = np.array(data[b'test_data']).reshape(-1, 32, 32, 3) / 255.0
+
     y_test = np.array(data[b'test_labels'])
     X_test = X_test.reshape(X_test.shape[0], -1)
+    X_test = [to_image(im) for im in X_test]
+    X_test = md.extract_hog_features(X_test)
+
+    test_dict = {
+        b'data': X_test,
+        b'labels': y_test,
+    }
+    save_data(test_dict, PROCESSED_DATA_DIR / "test_data.pkl")
 
     predictions = {'True Labels': y_test}
 
@@ -34,7 +44,6 @@ def main(
         logger.info(f"Evaluating {name} model...")
         predictions[name] = model.predict(X_test)
         accuracy = md.accuracy_score(y_test, predictions[name])
-        # accuracy = md.pipeline.score(X_test, y_test)
         logger.success(f"{name} model accuracy: {accuracy:.2f}")
         scores = md.cross_val_score(model, X_test, y_test, cv=5)
         logger.success(f"{name} model cross-validation accuracy: {scores.mean():.2f}")
