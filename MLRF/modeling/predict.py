@@ -24,11 +24,10 @@ def main(
     data = load_data(features_path)
 
     X_test = np.array(data[b'test_data']).reshape(-1, 32, 32, 3) / 255.0
-
     y_test = np.array(data[b'test_labels'])
     X_test = X_test.reshape(X_test.shape[0], -1)
-    X_test = [to_image(im) for im in X_test]
-    X_test = md.extract_hog_features(X_test)
+    X_test_2d = X_test
+    X_test = np.array([to_image(img) for img in X_test])
 
     test_dict = {
         b'data': X_test,
@@ -42,10 +41,12 @@ def main(
     for name, _ in md.models.items():
         model = md.load_model(f'{name}_model.pkl', model_path)
         logger.info(f"Evaluating {name} model...")
-        predictions[name] = model.predict(X_test)
-        accuracy = md.accuracy_score(y_test, predictions[name])
+        md.pipeline.set_params(classifier=model)
+        y_pred = md.pipeline.predict(X_test)
+        predictions[name] = y_pred
+        accuracy = md.accuracy_score(y_test, y_pred)
         logger.success(f"{name} model accuracy: {accuracy:.2f}")
-        scores = md.cross_val_score(model, X_test, y_test, cv=5)
+        scores = md.cross_val_score(model, X_test_2d, y_test, cv=5)
         logger.success(f"{name} model cross-validation accuracy: {scores.mean():.2f}")
 
     predictions_df = pd.DataFrame(predictions)

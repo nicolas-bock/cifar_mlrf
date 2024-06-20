@@ -23,12 +23,15 @@ models = {
     # 'gradient_boosting': GradientBoostingClassifier(learning_rate=0.01, random_state=42) # loss, max_depth, criterion
 }
 
-# -> Ajouter hog dans la pipeline => retirer hog du process de data
 pipeline = Pipeline([
-    # ('greyscale', FunctionTransformer(rgb2gray, validate=False)),
-    ('hog_extraction', FunctionTransformer(extract_hog_features, validate=False)),
+    # ('contrast', FunctionTransformer(contrast_images, validate=False)),
+    # ('grayscale', FunctionTransformer(rgb2gray, validate=False)),
+    # ('flatten', ImageFlattener()),
     # ('scaler', StandardScaler()),
-    # ('pca', PCA(n_components=100)),  # Réduction de dimensionnalité avec PCA
+    # ('sift_extraction', FunctionTransformer(extract_sift_features, validate=False)),
+    ('hog_extraction', FunctionTransformer(extract_hog_features, validate=False)),
+    # ('vlad', VLAD(k=16, norming="RN", verbose=False)),
+    # ('pca', PCA(n_components=2)),
     ('classifier', None)
 ])
 

@@ -17,6 +17,12 @@ from MLRF.features import extract_hog_features
 app = typer.Typer()
 
 def load_data(file_path, encoding=None):
+    """
+    Load data from a pickle file
+
+    Args:
+        file_path: str
+    """
     with open(file_path, 'rb') as f:
         if (encoding is not None):
             data = pickle.load(f, encoding=encoding)
@@ -25,6 +31,13 @@ def load_data(file_path, encoding=None):
     return data
 
 def save_data(data, file):
+    """
+    Save data to a pickle file
+
+    Args:
+        data: any
+        file: str
+    """
     with open(file, 'wb') as f:
         pickle.dump(data, f)
 
@@ -70,33 +83,10 @@ def main(
         combined_dict[b'data'], combined_dict[b'labels'], test_size=0.2, random_state=42
     )
 
-    ## ================ ADDED HOG FEATURES ================
-    ## Extraire les HOG features pour les donées d'entraînement
-    # combined_dict[b'data'] = np.array(combined_dict[b'data'])
-    # combined_dict[b'data'] = combined_dict[b'data'].reshape(-1, 32, 32, 3)
-    # logger.info("Extracting HOG features for training data...")
-    # combined_dict[b'hog_data'] = extract_hog_features(combined_dict[b'data'], 'reports/figures/hog_example.png')
-    # logger.info("HOG features for training data extracted.")
-    # combined_dict[b'validation_data'] = np.array(combined_dict[b'validation_data'])
-    # combined_dict[b'validation_data'] = combined_dict[b'validation_data'].reshape(-1, 32, 32, 3)
-    # logger.info("Extracting HOG features for validation data...")
-    # combined_dict[b'validation_hog_data'] = extract_hog_features(combined_dict[b'validation_data'])
-    # logger.info("HOG features for validation data extracted.")
-    ## ================ ADDED HOG FEATURES ================
-
     # Charger les données de test depuis test_batch
     test_batch_dict = load_data(input_path / "test_batch", encoding='bytes')
     combined_dict[b'test_data'].extend(test_batch_dict[b'data'])
     combined_dict[b'test_labels'].extend(test_batch_dict[b'labels'])
-
-    ## ================ ADDED HOG FEATURES ================
-    ## Extraire les HOG features pour les donées de test
-    # combined_dict[b'test_data'] = np.array(combined_dict[b'test_data'])
-    # combined_dict[b'test_data'] = combined_dict[b'test_data'].reshape(-1, 32, 32, 3)
-    # logger.info("Extracting HOG features for test data...")
-    # combined_dict[b'test_hog_data'] = extract_hog_features(combined_dict[b'test_data'])
-    # logger.info("HOG features for test data extracted.")
-    ## ================ ADDED HOG FEATURES ================
 
     # Sélectionner 10 images aléatoires pour chaque classe
     for label_index, label in enumerate(label_names):
@@ -108,8 +98,7 @@ def main(
     logger.success("Processing dataset complete.")
 
     logger.info("Saving processed dataset...")
-    with open(output_path, 'wb') as f:
-        pickle.dump(combined_dict, f)
+    save_data(combined_dict, output_path)
     logger.success(f"Processed dataset saved at {output_path}")
     # -----------------------------------------
 

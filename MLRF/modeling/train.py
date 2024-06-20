@@ -25,7 +25,7 @@ def main(
     X_train = np.array(data[b'data']).reshape(-1, 32, 32, 3) / 255.0
     y_train = np.array(data[b'labels'])
     X_train = X_train.reshape(X_train.shape[0], -1)
-    X_train = [to_image(img) for img in X_train]
+    X_train = np.array([to_image(img) for img in X_train])
 
     train_dict = {
         b'data': X_train,
@@ -36,7 +36,7 @@ def main(
     X_validation = np.array(data[b'validation_data']).reshape(-1, 32, 32, 3) / 255.0
     y_validation = np.array(data[b'validation_labels'])
     X_validation = X_validation.reshape(X_validation.shape[0], -1)
-    X_validation = [to_image(img) for img in X_validation]
+    X_validation = np.array([to_image(img) for img in X_validation])
 
     validation_dict = {
         b'data': X_validation,
