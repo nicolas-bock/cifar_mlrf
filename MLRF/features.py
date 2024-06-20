@@ -1,8 +1,7 @@
 from pathlib import Path
 from skimage import exposure
-from skimage.feature import hog, local_binary_pattern
+from skimage.feature import hog
 from skimage.color import rgb2gray
-from scipy.ndimage import gaussian_filter, gaussian_laplace, sobel
 from sklearn.base import BaseEstimator, TransformerMixin
 from random import sample
 
@@ -12,10 +11,8 @@ from sklearn.cluster import KMeans
 from sklearn.decomposition import PCA
 import progressbar as pb
 import cv2
-import matplotlib.pyplot as plt
 
 import typer
-from loguru import logger
 
 from MLRF.config import PROCESSED_DATA_DIR
 

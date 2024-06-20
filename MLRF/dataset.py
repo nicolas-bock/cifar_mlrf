@@ -1,6 +1,4 @@
 from pathlib import Path
-import matplotlib.pyplot as plt
-import numpy as np
 import pickle
 import random
 import typer
@@ -9,10 +7,7 @@ from tqdm import tqdm
 
 from sklearn.model_selection import train_test_split
 
-from skimage.feature import hog
-
 from MLRF.config import PROCESSED_DATA_DIR, RAW_DATA_DIR
-from MLRF.features import extract_hog_features
 
 app = typer.Typer()
 

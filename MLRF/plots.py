@@ -3,15 +3,24 @@ import numpy as np
 import pandas as pd
 import seaborn as sns
 import matplotlib.pyplot as plt
-
 import typer
+import cv2
+
+from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import label_binarize
+from sklearn.decomposition import PCA
+from sklearn.metrics import (
+    auc,
+    confusion_matrix,
+    precision_recall_curve,
+    roc_curve,
+)
+
 from loguru import logger
-from tqdm import tqdm
 from skimage import exposure
 from skimage.color import rgb2gray
+from skimage.feature import hog, corner_harris, corner_peaks, corner_subpix
 
-from sklearn.pipeline import make_pipeline
-from sklearn.preprocessing import StandardScaler
 from sklearn.inspection import DecisionBoundaryDisplay
 from matplotlib.colors import ListedColormap
 
@@ -74,8 +83,8 @@ def plot_hog_features(image, save_path=None):
     gray_contrast = rgb2gray(contrast_image)
 
     # Extraire les caractéristiques HOG de l'image
-    normal_hog = ft.hog(gray_image, pixels_per_cell=(8, 8), cells_per_block=(2, 2), visualize=True, channel_axis=None, block_norm='L2-Hys')
-    contrast_hog = ft.hog(gray_contrast, pixels_per_cell=(8, 8), cells_per_block=(2, 2), visualize=True, channel_axis=None, block_norm='L2-Hys')
+    normal_hog = hog(gray_image, pixels_per_cell=(8, 8), cells_per_block=(2, 2), visualize=True, channel_axis=None, block_norm='L2-Hys')
+    contrast_hog = hog(gray_contrast, pixels_per_cell=(8, 8), cells_per_block=(2, 2), visualize=True, channel_axis=None, block_norm='L2-Hys')
 
     # Normaliser l'image HOG
     # hog_image_rescaled = exposure.rescale_intensity(hog_image, in_range=(0, 10)) # L'image est déjà normalisée au préalable
@@ -124,7 +133,7 @@ def plot_sift_features(image, save_path=None):
     image_contrast = (ft.contrast((image * 255).astype(np.uint8)))
 
     # Initialisation du détecteur de points clés SIFT
-    sift = ft.cv2.SIFT_create()
+    sift = cv2.SIFT_create()
     
     # Détection des points clés et calcul des descripteurs
     key_desc_original = sift.detectAndCompute(image_8bit, None)
@@ -132,13 +141,13 @@ def plot_sift_features(image, save_path=None):
     key_desc_contrast = sift.detectAndCompute(image_contrast, None)
 
     # Afficher les points clés sur l'image originale
-    image_with_keypoints = ft.cv2.drawKeypoints(image_8bit, key_desc_original[0], None, flags=ft.cv2.DRAW_MATCHES_FLAGS_DRAW_RICH_KEYPOINTS)
+    image_with_keypoints = cv2.drawKeypoints(image_8bit, key_desc_original[0], None, flags=cv2.DRAW_MATCHES_FLAGS_DRAW_RICH_KEYPOINTS)
     
     # Afficher les points clés sur l'image en niveaux de gris
-    gray_image_with_keypoints = ft.cv2.drawKeypoints(gray_image, key_desc_gray[0], None, flags=ft.cv2.DRAW_MATCHES_FLAGS_DRAW_RICH_KEYPOINTS)
+    gray_image_with_keypoints = cv2.drawKeypoints(gray_image, key_desc_gray[0], None, flags=cv2.DRAW_MATCHES_FLAGS_DRAW_RICH_KEYPOINTS)
 
     # Afficher les points clés sur l'image contrastée
-    contrast_image_with_keypoints = ft.cv2.drawKeypoints(image_contrast, key_desc_contrast[0], None, flags=ft.cv2.DRAW_MATCHES_FLAGS_DRAW_RICH_KEYPOINTS)
+    contrast_image_with_keypoints = cv2.drawKeypoints(image_contrast, key_desc_contrast[0], None, flags=cv2.DRAW_MATCHES_FLAGS_DRAW_RICH_KEYPOINTS)
     
     # Afficher les images: originale, en niveaux de gris, en niveaux de gris avec les points clés, et originale avec les points clés
     fig, axs = plt.subplots(2, 3, figsize=(10, 8))
@@ -184,8 +193,8 @@ def plot_corner_detect_features(image, save_path=None):
     gray_image = rgb2gray(image)
     image = (image * 255).astype(np.uint8)
 
-    coords = ft.corner_peaks(ft.corner_harris(gray_image), min_distance=2, threshold_rel=0.01)
-    coords_subpix = ft.corner_subpix(gray_image, coords, window_size=4)
+    coords = corner_peaks(corner_harris(gray_image), min_distance=2, threshold_rel=0.01)
+    coords_subpix = corner_subpix(gray_image, coords, window_size=4)
 
     fig, axis = plt.subplots(2, 2, figsize=(6, 6))
     axis[0][0].axis('off')
@@ -206,8 +215,8 @@ def plot_corner_detect_features(image, save_path=None):
     contrasted_image = ft.contrast(image)
     gray_contrasted_image = rgb2gray(contrasted_image)
 
-    coords2 = ft.corner_peaks(ft.corner_harris(gray_contrasted_image), min_distance=2, threshold_rel=0.01)
-    coords_subpix2 = ft.corner_subpix(gray_contrasted_image, coords2, window_size=4)
+    coords2 = corner_peaks(corner_harris(gray_contrasted_image), min_distance=2, threshold_rel=0.01)
+    coords_subpix2 = corner_subpix(gray_contrasted_image, coords2, window_size=4)
 
     axis[1][0].axis('off')
     axis[1][0].imshow(contrasted_image)
@@ -239,7 +248,7 @@ def plot_correlation_matrix(predictions_df, save_path=None):
     plt.close()
 
 def plot_confusion_matrix(predictions, y_test, label_names, name, save_path=None):
-    cmat = ft.confusion_matrix(y_test, predictions)
+    cmat = confusion_matrix(y_test, predictions)
     plt.figure(figsize=(10, 7))
     plt.title(f'Confusion Matrix for {name}')
     plt.xticks(rotation=45)
@@ -254,7 +263,7 @@ def plot_precision_recall_curve(y_test_bin, preds_bin, label_names, name, save_p
     # Precision-Recall curve
     plt.figure()
     for i, label in enumerate(label_names):
-        precision, recall, _ = md.precision_recall_curve(y_test_bin[:, i], preds_bin[:, i])
+        precision, recall, _ = precision_recall_curve(y_test_bin[:, i], preds_bin[:, i])
         plt.plot(recall, precision, lw=2, label=f'{label}')
     plt.xticks(rotation=45)
     plt.xlabel('Recall')
@@ -269,8 +278,8 @@ def plot_roc_curve(y_test_bin, preds_bin, label_names, name, save_path=None):
     # ROC curve
     plt.figure()
     for i, label in enumerate(label_names):
-        fpr, tpr, _ = md.roc_curve(y_test_bin[:, i], preds_bin[:, i])
-        roc_auc = md.auc(fpr, tpr)
+        fpr, tpr, _ = roc_curve(y_test_bin[:, i], preds_bin[:, i])
+        roc_auc = auc(fpr, tpr)
         plt.plot(fpr, tpr, lw=2, label=f'{label} (AUC = {roc_auc:.2f})')
     plt.plot([0, 1], [0, 1], 'k--', lw=2)
     plt.xticks(rotation=45)
@@ -282,18 +291,18 @@ def plot_roc_curve(y_test_bin, preds_bin, label_names, name, save_path=None):
         plt.savefig(save_path, bbox_inches='tight')
     plt.close()
 
-def plot_classifier_comparison(train_data, models, save_path=None):
+def plot_2D_classifier_comparison(train_data, models, save_path=None):
     figure = plt.figure(figsize=(15, 5))
     i = 1
 
     X, y = train_data[b'data'], train_data[b'labels']
     X = X.reshape(-1, 32*32*3) / 255.0
 
-    X_train, X_test, y_train, y_test = ft.train_test_split(
+    X_train, X_test, y_train, y_test = train_test_split(
         X, y, test_size=0.4, random_state=42
     )
 
-    pca = ft.PCA(n_components=2)
+    pca = PCA(n_components=2)
     X_train_pca = pca.fit_transform(X_train)
     X_test_pca = pca.transform(X_test)
 
@@ -345,6 +354,73 @@ def plot_classifier_comparison(train_data, models, save_path=None):
         plt.savefig(save_path, bbox_inches='tight')
     plt.close()
 
+def plot_3D_classifier_comparison(train_data, models, save_path=None):
+    figure = plt.figure(figsize=(27, 9))
+    i = 1
+
+    X, y = train_data[b'data'], train_data[b'labels']
+    X = X.reshape(-1, 32*32*3) / 255.0
+
+    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.4, random_state=42)
+
+    # PCA with 3 components for 3D plotting
+    pca = PCA(n_components=3)
+    X_train_pca = pca.fit_transform(X_train)
+    X_test_pca = pca.transform(X_test)
+
+    # Set up 3D plot
+    ax = figure.add_subplot(1, len(models) + 1, i, projection='3d')
+    ax.set_title("Input data")
+
+    # Colors for 10 classes
+    cm_bright = ListedColormap(['#FF0000', '#FFFF00', '#00FF00', '#00FFFF', '#0000FF', '#FF00FF', '#FF7F00', '#7FFF00', '#7F00FF', '#FF007F'])
+
+    # Plot training and test points
+    scatter = ax.scatter(X_train_pca[:, 0], X_train_pca[:, 1], X_train_pca[:, 2], c=y_train, cmap=cm_bright, edgecolors="k")
+    scatter = ax.scatter(X_test_pca[:, 0], X_test_pca[:, 1], X_test_pca[:, 2], c=y_test, cmap=cm_bright, edgecolors="k", alpha=0.6)
+    ax.set_xlabel('PCA1')
+    ax.set_ylabel('PCA2')
+    ax.set_zlabel('PCA3')
+    i += 1
+
+    for name, model in models.items():
+        ax = figure.add_subplot(1, len(models) + 1, i, projection='3d')
+
+        md.pipeline.set_params(classifier=model)
+        md.pipeline.fit(X_train_pca, y_train)
+        score = md.pipeline.score(X_test_pca, y_test)
+
+        # Create a mesh grid
+        x_min, x_max = X_train_pca[:, 0].min() - 1, X_train_pca[:, 0].max() + 1
+        y_min, y_max = X_train_pca[:, 1].min() - 1, X_train_pca[:, 1].max() + 1
+        z_min, z_max = X_train_pca[:, 2].min() - 1, X_train_pca[:, 2].max() + 1
+
+        xx, yy = np.meshgrid(np.arange(x_min, x_max, 0.1), np.arange(y_min, y_max, 0.1))
+
+        # Predict on the mesh grid
+        Z = np.array([md.pipeline.predict(np.c_[xx.ravel(), yy.ravel(), np.full(xx.ravel().shape, z)]) for z in np.arange(z_min, z_max, 0.1)])
+        
+        # Plot decision boundary
+        for j, z in enumerate(np.arange(z_min, z_max, 0.1)):
+            zz = np.full(xx.shape, z)
+            ax.plot_surface(xx, yy, zz, facecolors=cm_bright(Z[j].reshape(xx.shape)), alpha=0.3, rstride=100, cstride=100)
+
+        # Plot training and test points
+        scatter = ax.scatter(X_train_pca[:, 0], X_train_pca[:, 1], X_train_pca[:, 2], c=y_train, cmap=cm_bright, edgecolors="k")
+        scatter = ax.scatter(X_test_pca[:, 0], X_test_pca[:, 1], X_test_pca[:, 2], c=y_test, cmap=cm_bright, edgecolors="k", alpha=0.6)
+
+        ax.set_xlabel('PCA1')
+        ax.set_ylabel('PCA2')
+        ax.set_zlabel('PCA3')
+        ax.set_title(name)
+        ax.text2D(0.05, 0.95, ("%.2f" % score).lstrip("0"), transform=ax.transAxes, size=15, horizontalalignment="right")
+        i += 1
+
+    plt.tight_layout()
+    if save_path:
+        plt.savefig(save_path, bbox_inches='tight')
+    plt.close()
+
 @app.command()
 def main(
     # ---- REPLACE DEFAULT PATHS AS APPROPRIATE ----
@@ -360,36 +436,35 @@ def main(
     label_names = [label.decode('utf-8') for label in data[b'label_names']]
 
     train_data = load_data(PROCESSED_DATA_DIR / "train_data.pkl")
-    validation_data = load_data(PROCESSED_DATA_DIR / "validation_data.pkl")
     test_data = load_data(PROCESSED_DATA_DIR / "test_data.pkl")
 
     X_train = train_data[b'data']
     y_test = test_data[b'labels']
 
     n_classes = len(label_names)
-    y_test_bin = ft.label_binarize(y_test, classes=np.arange(n_classes))
+    y_test_bin = label_binarize(y_test, classes=np.arange(n_classes))
 
-    sample_image = X_train[4]
-        
+    sample_image = X_train[4]        
     logger.info(f"Plotting feature extraction examples...")
-    plot_color_histo_features(sample_image, figures_path / 'color_histo_features.png')
-    plot_hog_features(sample_image, figures_path / 'hog_features.png')
-    plot_sift_features(sample_image, figures_path / 'sift_features.png')
-    plot_corner_detect_features(sample_image, figures_path / 'corner_detect_features.png')
+    plot_color_histo_features(sample_image, figures_path / "color_histo_features.png")
+    plot_hog_features(sample_image, figures_path / "hog_features.png")
+    plot_sift_features(sample_image, figures_path / "sift_features.png")
+    plot_corner_detect_features(sample_image, figures_path / "corner_detect_features.png")
 
     logger.info(f"Plotting evaluation metrics...")
-    plot_correlation_matrix(predictions_df, figures_path / 'correlation_matrix.png')
+    plot_correlation_matrix(predictions_df, figures_path / "correlation_matrix.png")
 
     for name, _ in md.models.items():
         predictions = predictions_df[name]
-        plot_confusion_matrix(predictions, y_test, label_names, name, figures_path / name / f'{name}_confusion_matrix.png')
+        plot_confusion_matrix(predictions, y_test, label_names, name, figures_path / name / f"{name}_confusion_matrix.png")
 
-        preds_bin = md.label_binarize(predictions, classes=np.arange(n_classes))
-        plot_precision_recall_curve(y_test_bin, preds_bin, label_names, name, figures_path / name / f'{name}_precision_recall_curve.png')
+        preds_bin = label_binarize(predictions, classes=np.arange(n_classes))
+        plot_precision_recall_curve(y_test_bin, preds_bin, label_names, name, figures_path / name / f"{name}_precision_recall_curve.png")
         
-        plot_roc_curve(y_test_bin, preds_bin, label_names, name, figures_path / name / f'{name}_roc_curve.png')
+        plot_roc_curve(y_test_bin, preds_bin, label_names, name, figures_path / name / f"{name}_roc_curve.png")
 
-    plot_classifier_comparison(train_data, md.models, figures_path / 'classifier_comparison.png')
+    plot_2D_classifier_comparison(train_data, md.models, figures_path / "2D_classifier_comparison.png")
+    plot_3D_classifier_comparison(train_data, md.models, figures_path / "3D_classifier_comparison.png")
 
     logger.success(f"Figures saved to {figures_path}")
     # -----------------------------------------

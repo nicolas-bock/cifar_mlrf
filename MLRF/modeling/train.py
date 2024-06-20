@@ -2,13 +2,12 @@ from pathlib import Path
 import numpy as np
 import typer
 from loguru import logger
-from tqdm import tqdm
+from sklearn.metrics import accuracy_score
 
 from MLRF.dataset import load_data, save_data
 import MLRF.model_utils as md
 from MLRF.config import MODELS_DIR, PROCESSED_DATA_DIR
 from MLRF.features import to_image
-
 
 app = typer.Typer()
 
@@ -51,7 +50,7 @@ def main(
         md.pipeline.fit(X_train, y_train)
         logger.success(f"{name} model trained.")
         y_pred = md.pipeline.predict(X_validation)
-        accuracy = md.accuracy_score(y_validation, y_pred)
+        accuracy = accuracy_score(y_validation, y_pred)
         logger.success(f"{name} model accuracy: {accuracy:.2f}")
         md.save_model(model, f"{name}_model.pkl", model_path)
         logger.success(f"{name} model saved.")

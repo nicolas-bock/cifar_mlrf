@@ -2,8 +2,9 @@ from pathlib import Path
 import numpy as np
 import typer
 from loguru import logger
-from tqdm import tqdm
 import pandas as pd
+from sklearn.metrics import accuracy_score
+from sklearn.model_selection import cross_val_score
 
 from MLRF.dataset import load_data, save_data
 import MLRF.model_utils as md
@@ -44,9 +45,9 @@ def main(
         md.pipeline.set_params(classifier=model)
         y_pred = md.pipeline.predict(X_test)
         predictions[name] = y_pred
-        accuracy = md.accuracy_score(y_test, y_pred)
+        accuracy = accuracy_score(y_test, y_pred)
         logger.success(f"{name} model accuracy: {accuracy:.2f}")
-        scores = md.cross_val_score(model, X_test_2d, y_test, cv=5)
+        scores = cross_val_score(model, X_test_2d, y_test, cv=5)
         logger.success(f"{name} model cross-validation accuracy: {scores.mean():.2f}")
 
     predictions_df = pd.DataFrame(predictions)

@@ -5,15 +5,12 @@ from sklearn.ensemble import RandomForestClassifier, GradientBoostingClassifier
 from sklearn.linear_model import LogisticRegression
 from sklearn.neighbors import KNeighborsClassifier
 from sklearn.svm import SVC
-from sklearn.metrics import accuracy_score, confusion_matrix, precision_recall_curve, roc_curve, auc
-from sklearn.model_selection import cross_val_score
-from sklearn.preprocessing import label_binarize
 
-from sklearn.pipeline import make_pipeline, Pipeline
+from sklearn.pipeline import Pipeline
 from sklearn.preprocessing import StandardScaler, FunctionTransformer
 from sklearn.decomposition import PCA
 
-from MLRF.features import extract_hog_features, rgb2gray
+from MLRF.features import extract_hog_features
 
 models = {
     'random_forest': RandomForestClassifier(random_state=42, criterion='entropy', max_depth=10), # criterion, max_depth
