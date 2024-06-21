@@ -26,7 +26,9 @@ Ce projet permet la reconnaissance et la classification d'images, de la base de 
 │   └── ...
 │
 ├── notebooks          <- Jupyter notebooks.
-│   └── verif_steps.ipynb <- Jupyter notebook to test and see the different figures appear                     
+│   └── verif_steps.ipynb           <- Jupyter notebook to get data, train, test and get figures about the results
+│   └── verif_features.ipynb        <- Jupyter notebook to test features
+│   └── decision_boundaries.ipynb   <- Jupyter notebook to get decision boudaries plots                   
 │
 ├── pyproject.toml     <- Project configuration file with package metadata for MLRF
 │                         and configuration for tools like black
@@ -35,6 +37,7 @@ Ce projet permet la reconnaissance et la classification d'images, de la base de 
 │
 ├── reports            <- Generated analysis as HTML, PDF, LaTeX, etc.
 │   └── figures        <- Generated graphics and figures to be used in reporting
+│   │   └── ...
 │   └── ...
 │
 ├── requirements.txt   <- The requirements file for reproducing the analysis environment, e.g.
