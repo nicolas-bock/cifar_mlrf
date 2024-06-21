@@ -106,6 +106,13 @@ def extract_sift_features(images):
     return np.array(sift_features)
 
 class ImageFlattener(BaseEstimator, TransformerMixin):
+    """
+    Flatten a list of images
+
+    Args:
+        BaseEstimator: Base class for all estimators in scikit-learn
+        TransformerMixin: Mixin class for all transformers in scikit-learn
+    """
     def fit(self, X, y=None):
         return self
 

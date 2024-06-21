@@ -4,18 +4,22 @@ build-backend = "flit_core.buildapi"
 
 [project]
 name = "MLRF"
-version = "0.0.1"
-description = "Projet de reconbase de donn\u00e9e Cifar"
+version = "1.0.0"
+description = "Projet de reconnaissance d'images associées à 10 classes différentes, à partir de la base de donnée CIFAR-10."
 authors = [
   { name = "Nicolas \u0026 Camile" },
 ]
 license = { file = "LICENSE" }
 readme = "README.md"
-classifiers = [
-    "Programming Language :: Python :: 3",
-    "License :: OSI Approved :: MIT License"
-]
-requires-python = "~=3.12"
+classifiers= [
+            "Development Status :: 3 - Alpha",
+            "Intended Audience :: Education",
+            "Programming Language :: Python :: 2",
+            "Programming Language :: Python :: 3",
+            "Operating System :: MacOS :: MacOS X",
+            "Operating System :: Microsoft :: Windows",
+        ]
+requires-python = ">=3.10"
 
 [tool.black]
 line-length = 99

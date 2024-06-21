@@ -11,8 +11,8 @@ Ce projet permet la reconnaissance et la classification d'images, de la base de 
 ## Project Organization
 
 ```
-├── LICENSE            <- Open-source license if one is chosen
-├── Makefile           <- Makefile with convenience commands like `make data` or `make train`
+├── LICENSE            <- Open-source MIT license
+├── Makefile           <- Makefile with convenience commands like `make install` or `make run`
 ├── README.md          <- The top-level README for developers using this project.
 ├── data
 │   ├── external       <- Data from third party sources.
@@ -23,10 +23,10 @@ Ce projet permet la reconnaissance et la classification d'images, de la base de 
 ├── docs               <- A default mkdocs project; see mkdocs.org for details
 │
 ├── models             <- Trained and serialized models, model predictions, or model summaries
+│   └── ...
 │
-├── notebooks          <- Jupyter notebooks. Naming convention is a number (for ordering),
-│                         the creator's initials, and a short `-` delimited description, e.g.
-│                         `1.0-jqp-initial-data-exploration`.
+├── notebooks          <- Jupyter notebooks.
+│   └── verif_steps.ipynb <- Jupyter notebook to test and see the different figures appear                     
 │
 ├── pyproject.toml     <- Project configuration file with package metadata for MLRF
 │                         and configuration for tools like black
@@ -35,29 +35,33 @@ Ce projet permet la reconnaissance et la classification d'images, de la base de 
 │
 ├── reports            <- Generated analysis as HTML, PDF, LaTeX, etc.
 │   └── figures        <- Generated graphics and figures to be used in reporting
+│   └── ...
 │
 ├── requirements.txt   <- The requirements file for reproducing the analysis environment, e.g.
 │                         generated with `pip freeze > requirements.txt`
 │
 ├── setup.cfg          <- Configuration file for flake8
 │
-└── MLRF                <- Source code for use in this project.
+└── MLRF               <- Source code for use in this project
     │
     ├── __init__.py    <- Makes MLRF a Python module
     │
-    ├── data           <- Scripts to download or generate data
-    │   └── make_dataset.py
+    ├── config.py      <- Scripts to configurate paths etc.
     │
-    ├── features       <- Scripts to turn raw data into features for modeling
-    │   └── build_features.py
+    ├── dataset.py     <- Scripts to download and generate data
     │
-    ├── models         <- Scripts to train models and then use trained models to make
+    ├── features.py    <- Scripts to turn raw data into features for modeling
+    │
+    ├── model_utils.py <- Scripts to define utilities like pipeline, classifiers, and load/save methods
+    │
+    ├── modeling       <- Scripts to train models and then use trained models to make
     │   │                 predictions
-    │   ├── predict_model.py
-    │   └── train_model.py
+    │   ├── predict.py
+    │   └── train.py
     │
-    └── visualization  <- Scripts to create exploratory and results oriented visualizations
-        └── visualize.py
+    └── plots.py       <- Scripts to create exploratory and results oriented visualizations
+    │
+    └── setup.py       <- Scipt to create a package from the project
 ```
 
 --------

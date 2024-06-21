@@ -32,6 +32,13 @@ from MLRF.config import FIGURES_DIR, PROCESSED_DATA_DIR, MODELS_DIR
 app = typer.Typer()
 
 def plot_color_histo_features(image, save_path=None):
+    """
+    Plot the color histogram features of an image.
+
+    Args:
+        image: The image to plot the color histogram features.
+        save_path: The path to save the plot.
+    """
     gray_image = rgb2gray(image)
 
     _, axis = plt.subplots(3, 2, gridspec_kw={'width_ratios': [1, 3]})
@@ -83,8 +90,8 @@ def plot_hog_features(image, save_path=None):
     gray_contrast = rgb2gray(contrast_image)
 
     # Extraire les caractéristiques HOG de l'image
-    normal_hog = hog(gray_image, pixels_per_cell=(8, 8), cells_per_block=(2, 2), visualize=True, channel_axis=None, block_norm='L2-Hys')
-    contrast_hog = hog(gray_contrast, pixels_per_cell=(8, 8), cells_per_block=(2, 2), visualize=True, channel_axis=None, block_norm='L2-Hys')
+    normal_hog = hog(gray_image, pixels_per_cell=(8, 8), cells_per_block=(2, 2), visualize=True, block_norm='L2-Hys')
+    contrast_hog = hog(gray_contrast, pixels_per_cell=(8, 8), cells_per_block=(2, 2), visualize=True, block_norm='L2-Hys')
 
     # Normaliser l'image HOG
     # hog_image_rescaled = exposure.rescale_intensity(hog_image, in_range=(0, 10)) # L'image est déjà normalisée au préalable
@@ -238,7 +245,13 @@ def plot_corner_detect_features(image, save_path=None):
     plt.close()
 
 def plot_correlation_matrix(predictions_df, save_path=None):
-    # Correlation des prédictions
+    """
+    Plot the correlation matrix of model predictions.
+
+    Args:
+        predictions_df: The dataframe containing the model predictions.
+        save_path: The path to save the plot.
+    """
     correlation_matrix = predictions_df.corr()
     plt.figure(figsize=(10, 7))
     plt.title('Correlation Matrix of Model Predictions')
@@ -260,7 +273,16 @@ def plot_confusion_matrix(predictions, y_test, label_names, name, save_path=None
     plt.close()
 
 def plot_precision_recall_curve(y_test_bin, preds_bin, label_names, name, save_path=None):
-    # Precision-Recall curve
+    """
+    Plot the precision-recall curve for the model predictions.
+    
+    Args:
+        y_test_bin: The binarized true labels.
+        preds_bin: The binarized model predictions.
+        label_names: The names of the labels.
+        name: The name of the model.
+        save_path: The path to save the plot.
+    """
     plt.figure()
     for i, label in enumerate(label_names):
         precision, recall, _ = precision_recall_curve(y_test_bin[:, i], preds_bin[:, i])
@@ -275,7 +297,16 @@ def plot_precision_recall_curve(y_test_bin, preds_bin, label_names, name, save_p
     plt.close()
 
 def plot_roc_curve(y_test_bin, preds_bin, label_names, name, save_path=None):
-    # ROC curve
+    """
+    Plot the ROC curve for the model predictions.
+
+    Args:
+        y_test_bin: The binarized true labels.
+        preds_bin: The binarized model predictions.
+        label_names: The names of the labels.
+        name: The name of the model.
+        save_path: The path to save the plot.
+    """
     plt.figure()
     for i, label in enumerate(label_names):
         fpr, tpr, _ = roc_curve(y_test_bin[:, i], preds_bin[:, i])
@@ -291,7 +322,15 @@ def plot_roc_curve(y_test_bin, preds_bin, label_names, name, save_path=None):
         plt.savefig(save_path, bbox_inches='tight')
     plt.close()
 
-def plot_2D_classifier_comparison(train_data, models, save_path=None):
+def plot_2D_decision_boundaries(train_data, models, save_path=None):
+    """
+    Plot the decision boundaries of the classifiers in 2D.
+
+    Args:
+        train_data: The training data.
+        models: The dictionary of models to compare.
+        save_path: The path to save the plot.
+    """
     figure = plt.figure(figsize=(15, 5))
     i = 1
 
@@ -354,7 +393,15 @@ def plot_2D_classifier_comparison(train_data, models, save_path=None):
         plt.savefig(save_path, bbox_inches='tight')
     plt.close()
 
-def plot_3D_classifier_comparison(train_data, models, save_path=None):
+def plot_3D_decision_boundaries(train_data, models, save_path=None):
+    """
+    Plot the decision boundaries of the classifiers in 3D.
+
+    Args:
+        train_data: The training data.
+        models: The dictionary of models to compare.
+        save_path: The path to save the plot.
+    """
     figure = plt.figure(figsize=(27, 9))
     i = 1
 
@@ -425,7 +472,6 @@ def plot_3D_classifier_comparison(train_data, models, save_path=None):
 def main(
     # ---- REPLACE DEFAULT PATHS AS APPROPRIATE ----
     data_path: Path = PROCESSED_DATA_DIR / "processed_dataset.pkl",
-    model_path: Path = MODELS_DIR,
     predictions_path: Path = PROCESSED_DATA_DIR / "test_predictions.csv",
     figures_path: Path = FIGURES_DIR,
     # -----------------------------------------
@@ -435,6 +481,19 @@ def main(
     data = load_data(data_path)
     label_names = [label.decode('utf-8') for label in data[b'label_names']]
 
+    logger.info(f"Plotting feature extraction examples...")
+    X_train = np.array(data[b'data']).reshape(-1, 32, 32, 3) / 255.0
+    X_train = X_train.reshape(X_train.shape[0], -1)
+    X_train = np.array([ft.to_image(img) for img in X_train])
+    y_test = np.array(data[b'test_labels'])
+
+    sample_image = X_train[4]        
+    plot_color_histo_features(sample_image, figures_path / "color_histo_features.png")
+    plot_hog_features(sample_image, figures_path / "hog_features.png")
+    plot_sift_features(sample_image, figures_path / "sift_features.png")
+    plot_corner_detect_features(sample_image, figures_path / "corner_detect_features.png")
+
+    logger.info(f"Plotting evaluation metrics...")
     train_data = load_data(PROCESSED_DATA_DIR / "train_data.pkl")
     test_data = load_data(PROCESSED_DATA_DIR / "test_data.pkl")
 
@@ -443,15 +502,6 @@ def main(
 
     n_classes = len(label_names)
     y_test_bin = label_binarize(y_test, classes=np.arange(n_classes))
-
-    sample_image = X_train[4]        
-    logger.info(f"Plotting feature extraction examples...")
-    plot_color_histo_features(sample_image, figures_path / "color_histo_features.png")
-    plot_hog_features(sample_image, figures_path / "hog_features.png")
-    plot_sift_features(sample_image, figures_path / "sift_features.png")
-    plot_corner_detect_features(sample_image, figures_path / "corner_detect_features.png")
-
-    logger.info(f"Plotting evaluation metrics...")
     plot_correlation_matrix(predictions_df, figures_path / "correlation_matrix.png")
 
     for name, _ in md.models.items():
@@ -463,8 +513,8 @@ def main(
         
         plot_roc_curve(y_test_bin, preds_bin, label_names, name, figures_path / name / f"{name}_roc_curve.png")
 
-    plot_2D_classifier_comparison(train_data, md.models, figures_path / "2D_classifier_comparison.png")
-    plot_3D_classifier_comparison(train_data, md.models, figures_path / "3D_classifier_comparison.png")
+    # plot_2D_decision_boundaries(train_data, md.models, figures_path / "2D_classifier_comparison.png")
+    # plot_3D_decision_boundaries(train_data, md.models, figures_path / "3D_classifier_comparison.png")
 
     logger.success(f"Figures saved to {figures_path}")
     # -----------------------------------------

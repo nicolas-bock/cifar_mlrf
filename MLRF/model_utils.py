@@ -10,7 +10,7 @@ from sklearn.pipeline import Pipeline
 from sklearn.preprocessing import StandardScaler, FunctionTransformer
 from sklearn.decomposition import PCA
 
-from MLRF.features import extract_hog_features
+from MLRF.features import extract_hog_features, ImageFlattener, extract_sift_features, contrast_images, rgb2gray, VLAD
 
 models = {
     'random_forest': RandomForestClassifier(random_state=42, criterion='entropy', max_depth=10), # criterion, max_depth
@@ -23,10 +23,10 @@ models = {
 pipeline = Pipeline([
     # ('contrast', FunctionTransformer(contrast_images, validate=False)),
     # ('grayscale', FunctionTransformer(rgb2gray, validate=False)),
-    # ('flatten', ImageFlattener()),
+    ('flatten', ImageFlattener()),
     # ('scaler', StandardScaler()),
     # ('sift_extraction', FunctionTransformer(extract_sift_features, validate=False)),
-    ('hog_extraction', FunctionTransformer(extract_hog_features, validate=False)),
+    # ('hog_extraction', FunctionTransformer(extract_hog_features, validate=False)),
     # ('vlad', VLAD(k=16, norming="RN", verbose=False)),
     # ('pca', PCA(n_components=2)),
     ('classifier', None)

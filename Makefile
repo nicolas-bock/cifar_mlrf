@@ -17,8 +17,12 @@ requirements:
 	$(PYTHON_INTERPRETER) -m pip install -U pip
 	$(PYTHON_INTERPRETER) -m pip install -r requirements.txt
 	
-
-
+## Install Cifar Package
+.PHONY: install
+install: requirements
+	$(PYTHON_INTERPRETER) MLRF/setup.py develop
+	$(PYTHON_INTERPRETER) MLRF/setup.py sdist --format=gztar
+	pip install MLRF/dist/cifar_package-1.0.0.tar.gz
 
 ## Delete all compiled Python files
 .PHONY: clean
